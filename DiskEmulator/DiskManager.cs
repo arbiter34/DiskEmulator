@@ -16,6 +16,8 @@ namespace DiskEmulator
 
         private Dictionary<Seek, Boolean> seeksDone;
 
+        private Dictionary<Seek, long> turnAroundTimes;
+
         public DiskManager(List<Seek> seeks)
         {
             this.seeks = seeks;
@@ -26,59 +28,113 @@ namespace DiskEmulator
         {
             disk = new Disk();
             seeksDone = new Dictionary<Seek, Boolean>();
+            turnAroundTimes = new Dictionary<Seek, long>();
             foreach (Seek seek in seeks)
             {
                 seeksDone.Add(seek, false);
+                turnAroundTimes.Add(seek, 0);
             }
             time = 0;
         }
 
+        //First come first serv
         public Boolean FCFS()
         {
+            //Tick
             time++;
 
+            //Iterate over list of seeks
             foreach (Seek seek in seeks)
             {
-                if (time > seek.ArrivalTime)
+                //If done - skip
+                if (seeksDone[seek])
                 {
+                    continue;
+                }
+
+                //If time is greater than or equal to arrival - start
+                if (time >= seek.ArrivalTime)
+                {
+                    //Seek and add time to seek to time total
                     time += disk.Seek(seek.Position);
+
+                    //Calculate turn around time (finish time - arrival time)
+                    long turnAroundTime = time - seek.ArrivalTime;
+
+                    //Log
+                    Console.WriteLine("Arrival Time: {0,-5} Track: {1, -4} Sector: {2, -2} Turnaround Time: {3, -4}", 
+                                        seek.ArrivalTime, 
+                                        seek.Position.Track, 
+                                        seek.Position.Sector, 
+                                        turnAroundTime);
+
+                    //Set turn around time in data log
+                    turnAroundTimes[seek] = turnAroundTime;
+
+                    //Mark done
                     seeksDone[seek] = true;
                 }
             }
 
+            //Check and return whether finished
             return Finished();
         }
 
+        //Shortest seek time first
         public Boolean SSTF()
         {
+            //Tick
             time++;
 
+            //Init shortest to not existing
             Seek shortest = null;
 
+            //Iterate over Seeks
             foreach (Seek seek in seeks)
             {
+                //If seek is done or not arrived - skip
                 if (seeksDone[seek] || time < seek.ArrivalTime)
                 {
                     continue;
                 }
 
+                //Take first valid seek as shortest
                 if (shortest == null)
                 {
                     shortest = seek;
                 }
 
+                //If seek is closer than shortest - replace shortest with seek
                 if (Math.Abs(seek.Position.Track - disk.Position.Track) < Math.Abs(shortest.Position.Track - disk.Position.Track))
                 {
                     shortest = seek;
                 }
             }
 
+            //If a seek was found - do it
             if (shortest != null)
             {
+                //Seek and add time to seek to time total
                 time += disk.Seek(shortest.Position);
+
+                //Calculate turn around time (finish time - arrival time)
+                long turnAroundTime = time - shortest.ArrivalTime;
+
+                //Log
+                Console.WriteLine("Arrival Time: {0,-5} Track: {1, -4} Sector: {2, -2} Turnaround Time: {3, -4}", 
+                                    shortest.ArrivalTime, 
+                                    shortest.Position.Track, 
+                                    shortest.Position.Sector, 
+                                    turnAroundTime);
+
+                //Set turn around time in data log
+                turnAroundTimes[shortest] = turnAroundTime;
+
+                //Mark done
                 seeksDone[shortest] = true;
             }
 
+            //Check and return whether finished
             return Finished();
         }
 
@@ -157,7 +213,23 @@ namespace DiskEmulator
             //If there is a next seek in this direction perform it
             if (next != null)
             {
+                //Seek and add time to seek to time total
                 time += disk.Seek(next.Position);
+
+                //Calculate turn around time (finish time - arrival time)
+                long turnAroundTime = time - next.ArrivalTime;
+
+                //Log
+                Console.WriteLine("Arrival Time: {0,-5} Track: {1, -4} Sector: {2, -2} Turnaround Time: {3, -4}",
+                                    next.ArrivalTime,
+                                    next.Position.Track,
+                                    next.Position.Sector,
+                                    turnAroundTime);
+
+                //Set turn around time in data log
+                turnAroundTimes[next] = turnAroundTime;
+
+                //Mark done
                 seeksDone[next] = true;
             }
             else
@@ -240,7 +312,23 @@ namespace DiskEmulator
             //If there is a next seek in this direction perform it
             if (next != null)
             {
+                //Seek and add time to seek to time total
                 time += disk.Seek(next.Position);
+
+                //Calculate turn around time (finish time - arrival time)
+                long turnAroundTime = time - next.ArrivalTime;
+
+                //Log
+                Console.WriteLine("Arrival Time: {0,-5} Track: {1, -4} Sector: {2, -2} Turnaround Time: {3, -4}",
+                                    next.ArrivalTime,
+                                    next.Position.Track,
+                                    next.Position.Sector,
+                                    turnAroundTime);
+
+                //Set turn around time in data log
+                turnAroundTimes[next] = turnAroundTime;
+
+                //Mark done
                 seeksDone[next] = true;
             }
 
@@ -264,6 +352,12 @@ namespace DiskEmulator
         {
             get { return time; }
             set { time = value; }
+        }
+
+        public Dictionary<Seek, long> TurnAroundTimes
+        {
+            get { return turnAroundTimes; }
+            set { turnAroundTimes = value; }
         }
     }
 }
