@@ -23,6 +23,18 @@ namespace DiskEmulator
 
             Console.WriteLine("SSTF: {0}", manager.Time);
 
+            manager.Init();
+
+            while (!manager.LOOK()) { }
+
+            Console.WriteLine("LOOK: {0}", manager.Time);
+
+            manager.Init();
+
+            while (!manager.CLOOK()) { }
+
+            Console.WriteLine("CLOOK: {0}", manager.Time);
+
         }
     }
 }

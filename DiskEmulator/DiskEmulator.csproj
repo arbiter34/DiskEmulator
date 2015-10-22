@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Direction.cs" />
     <Compile Include="Disk.cs" />
     <Compile Include="DiskManager.cs" />
     <Compile Include="PositionVector.cs" />

@@ -12,10 +12,13 @@ namespace DiskEmulator
 
         private Track[] tracks;
 
+        private Direction direction;
+
         public Disk()
         {
             tracks = new Track[250];
             position = new PositionVector(0, 0);
+            direction = Direction.In;
         }
 
 
@@ -25,6 +28,8 @@ namespace DiskEmulator
             {
                 return 0;
             }
+
+            direction = newPosition.Track > position.Track ? Direction.In : Direction.Out;
 
             long time = (long)(10 + 0.1 * Math.Abs(position.Track - newPosition.Track));
 
@@ -37,6 +42,9 @@ namespace DiskEmulator
                 time += (8 - position.Sector) + newPosition.Sector;
             }
 
+            position.Track = newPosition.Track;
+            position.Sector = newPosition.Sector;
+
             return time;
         }
 
@@ -45,6 +53,12 @@ namespace DiskEmulator
         {
             get { return position; }
             set { position = value; }
+        }
+
+        public Direction Direction
+        {
+            get { return direction; }
+            set { direction = value; }
         }
     }
 }
