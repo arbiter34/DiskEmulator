@@ -22,7 +22,7 @@ namespace DiskEmulator
         }
 
 
-        public long Seek(PositionVector newPosition)
+        public double Seek(PositionVector newPosition)
         {
             if (!newPosition.isValid)
             {
@@ -31,7 +31,16 @@ namespace DiskEmulator
 
             direction = newPosition.Track > position.Track ? Direction.In : Direction.Out;
 
-            long time = (long)(10 + 0.1 * Math.Abs(position.Track - newPosition.Track));
+            double time = calculateSeek(newPosition);
+
+            position.Track = newPosition.Track;
+            position.Sector = newPosition.Sector;
+
+            return time;
+        }
+
+        public double calculateSeek(PositionVector newPosition) {
+            double time = (10 + 0.1 * Math.Abs(position.Track - newPosition.Track));
 
             if (newPosition.Sector >= position.Sector)
             {
@@ -42,8 +51,9 @@ namespace DiskEmulator
                 time += (8 - position.Sector) + newPosition.Sector;
             }
 
-            position.Track = newPosition.Track;
-            position.Sector = newPosition.Sector;
+
+            //Include transfer time of 1 ms
+            time++;
 
             return time;
         }

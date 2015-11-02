@@ -8,18 +8,18 @@ namespace DiskEmulator
 {
     class Program
     {
-        private static Dictionary<string, Dictionary<Seek, long>> turnAroundTimes;
+        private static Dictionary<string, Dictionary<Seek, double>> turnAroundTimes;
 
         static void Main(string[] args)
         {
             SetDataRun();
-            RandomDataRun();
+            //RandomDataRun();
 
         }
 
         private static void SetDataRun()
         {
-            turnAroundTimes = new Dictionary<string, Dictionary<Seek, long>>();
+            turnAroundTimes = new Dictionary<string, Dictionary<Seek, double>>();
 
             List<Seek> seeks = SeekFactory.SetData();
 
@@ -33,7 +33,7 @@ namespace DiskEmulator
 
             turnAroundTimes.Add("FCFS", manager.TurnAroundTimes);
 
-            long sum = turnAroundTimes["FCFS"].Sum(x => x.Value);
+            double sum = turnAroundTimes["FCFS"].Sum(x => x.Value);
 
             double avg = sum / turnAroundTimes["FCFS"].Count;
 
@@ -100,7 +100,7 @@ namespace DiskEmulator
 
         private static void RandomDataRun()
         {
-            turnAroundTimes = new Dictionary<string, Dictionary<Seek, long>>();
+            turnAroundTimes = new Dictionary<string, Dictionary<Seek, double>>();
 
             List<Seek> seeks = SeekFactory.RandomData(50);
 
@@ -114,7 +114,7 @@ namespace DiskEmulator
 
             turnAroundTimes.Add("FCFS", manager.TurnAroundTimes);
 
-            long sum = turnAroundTimes["FCFS"].Sum(x => x.Value);
+            double sum = turnAroundTimes["FCFS"].Sum(x => x.Value);
 
             double avg = sum / turnAroundTimes["FCFS"].Count;
 
@@ -179,11 +179,11 @@ namespace DiskEmulator
             Console.WriteLine("Avg: {0,-4}  Variance: {1, -4}  StdDev: {2, -4}\n\n", avg, variance, stdDev);
         }
 
-        private static double Variance(Dictionary<Seek, long> dict, double avg)
+        private static double Variance(Dictionary<Seek, double> dict, double avg)
         {
             List<double> diff = new List<double>();
 
-            foreach (KeyValuePair<Seek, long> entry in dict)
+            foreach (KeyValuePair<Seek, double> entry in dict)
             {
                 diff.Add(Math.Pow(Math.Abs(entry.Value - avg), 2));
             }

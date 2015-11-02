@@ -14,16 +14,16 @@ namespace DiskEmulator
             this.sector = sector;
         }
 
-        private long track;
+        private double track;
 
-        public long Track
+        public double Track
         {
             get { return track; }
             set { track = value; }
         }
-        private long sector;
+        private double sector;
 
-        public long Sector
+        public double Sector
         {
             get { return sector; }
             set { sector = value; }

@@ -10,13 +10,13 @@ namespace DiskEmulator
     {
         private Disk disk;
 
-        private long time;
+        private double time;
 
         private List<Seek> seeks;
 
         private Dictionary<Seek, Boolean> seeksDone;
 
-        private Dictionary<Seek, long> turnAroundTimes;
+        private Dictionary<Seek, double> turnAroundTimes;
 
         public DiskManager(List<Seek> seeks)
         {
@@ -28,7 +28,7 @@ namespace DiskEmulator
         {
             disk = new Disk();
             seeksDone = new Dictionary<Seek, Boolean>();
-            turnAroundTimes = new Dictionary<Seek, long>();
+            turnAroundTimes = new Dictionary<Seek, double>();
             foreach (Seek seek in seeks)
             {
                 seeksDone.Add(seek, false);
@@ -40,8 +40,7 @@ namespace DiskEmulator
         //First come first serv
         public Boolean FCFS()
         {
-            //Tick
-            time++;
+            Boolean didSeek = false;
 
             //Iterate over list of seeks
             foreach (Seek seek in seeks)
@@ -59,7 +58,7 @@ namespace DiskEmulator
                     time += disk.Seek(seek.Position);
 
                     //Calculate turn around time (finish time - arrival time)
-                    long turnAroundTime = time - seek.ArrivalTime;
+                    double turnAroundTime = time - seek.ArrivalTime;
 
                     //Log
                     Console.WriteLine("Arrival Time: {0,-5} Track: {1, -4} Sector: {2, -2} Turnaround Time: {3, -4}", 
@@ -73,7 +72,18 @@ namespace DiskEmulator
 
                     //Mark done
                     seeksDone[seek] = true;
+                    didSeek = true;
+                    break;
                 }
+            }
+
+            if (!didSeek)
+            {
+                if (time % 1 != 0)
+                {
+                    time = Math.Floor(time);
+                }
+                time++;
             }
 
             //Check and return whether finished
@@ -83,8 +93,6 @@ namespace DiskEmulator
         //Shortest seek time first
         public Boolean SSTF()
         {
-            //Tick
-            time++;
 
             //Init shortest to not existing
             Seek shortest = null;
@@ -105,7 +113,7 @@ namespace DiskEmulator
                 }
 
                 //If seek is closer than shortest - replace shortest with seek
-                if (Math.Abs(seek.Position.Track - disk.Position.Track) < Math.Abs(shortest.Position.Track - disk.Position.Track))
+                if (disk.calculateSeek(seek.Position) < disk.calculateSeek(shortest.Position))
                 {
                     shortest = seek;
                 }
@@ -118,7 +126,7 @@ namespace DiskEmulator
                 time += disk.Seek(shortest.Position);
 
                 //Calculate turn around time (finish time - arrival time)
-                long turnAroundTime = time - shortest.ArrivalTime;
+                double turnAroundTime = time - shortest.ArrivalTime;
 
                 //Log
                 Console.WriteLine("Arrival Time: {0,-5} Track: {1, -4} Sector: {2, -2} Turnaround Time: {3, -4}", 
@@ -133,6 +141,14 @@ namespace DiskEmulator
                 //Mark done
                 seeksDone[shortest] = true;
             }
+            else
+            {
+                if (time % 1 != 0)
+                {
+                    time = Math.Floor(time);
+                }
+                time++;
+            }
 
             //Check and return whether finished
             return Finished();
@@ -140,8 +156,7 @@ namespace DiskEmulator
 
         public Boolean LOOK()
         {
-            //Tick 
-            time++;
+            Boolean advanceTime = true;
 
             //Next not found
             Seek next = null;
@@ -162,12 +177,18 @@ namespace DiskEmulator
                     break;
                 }
 
+                if (time < seek.ArrivalTime)
+                {
+                    continue;
+                }
+                advanceTime = false;
+
                 //Switch based on current disk direction
                 switch (disk.Direction)
                 {
                     case Direction.In:
-                        //If seek is the wrong direction or hasn't arrived, skip
-                        if (seek.Position.Track < disk.Position.Track || time < seek.ArrivalTime)
+                        //If seek is the wrong direction, skip
+                        if (seek.Position.Track < disk.Position.Track)
                         {
                             continue;
                         }
@@ -187,8 +208,8 @@ namespace DiskEmulator
                         break;
 
                     case Direction.Out:
-                        //If seek is the wrong direction or hasn't arrived, skip
-                        if (seek.Position.Track > disk.Position.Track || time < seek.ArrivalTime)
+                        //If seek is the wrong direction, skip
+                        if (seek.Position.Track > disk.Position.Track)
                         {
                             continue;
                         }
@@ -217,7 +238,7 @@ namespace DiskEmulator
                 time += disk.Seek(next.Position);
 
                 //Calculate turn around time (finish time - arrival time)
-                long turnAroundTime = time - next.ArrivalTime;
+                double turnAroundTime = time - next.ArrivalTime;
 
                 //Log
                 Console.WriteLine("Arrival Time: {0,-5} Track: {1, -4} Sector: {2, -2} Turnaround Time: {3, -4}",
@@ -236,6 +257,16 @@ namespace DiskEmulator
             {
                 //If no seek, switch direction of head
                 disk.Direction = disk.Direction == Direction.In ? Direction.Out : Direction.In;
+
+            }
+
+            if (advanceTime)
+            {
+                if (time % 1 != 0)
+                {
+                    time = Math.Floor(time);
+                }
+                time++;
             }
 
             return Finished();
@@ -243,9 +274,6 @@ namespace DiskEmulator
 
         public Boolean CLOOK()
         {
-            //Tick 
-            time++;
-
             //Next not found
             Seek next = null;
 
@@ -316,7 +344,7 @@ namespace DiskEmulator
                 time += disk.Seek(next.Position);
 
                 //Calculate turn around time (finish time - arrival time)
-                long turnAroundTime = time - next.ArrivalTime;
+                double turnAroundTime = time - next.ArrivalTime;
 
                 //Log
                 Console.WriteLine("Arrival Time: {0,-5} Track: {1, -4} Sector: {2, -2} Turnaround Time: {3, -4}",
@@ -330,6 +358,14 @@ namespace DiskEmulator
 
                 //Mark done
                 seeksDone[next] = true;
+            }
+            else
+            {
+                if (time % 1 != 0)
+                {
+                    time = Math.Floor(time);
+                }
+                time++;
             }
 
             return Finished();
@@ -348,13 +384,13 @@ namespace DiskEmulator
             return true;
         }
 
-        public long Time
+        public double Time
         {
             get { return time; }
             set { time = value; }
         }
 
-        public Dictionary<Seek, long> TurnAroundTimes
+        public Dictionary<Seek, double> TurnAroundTimes
         {
             get { return turnAroundTimes; }
             set { turnAroundTimes = value; }

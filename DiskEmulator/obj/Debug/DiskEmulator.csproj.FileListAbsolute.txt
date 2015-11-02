@@ -4,3 +4,9 @@ c:\users\alperst\documents\visual studio 2013\Projects\DiskEmulator\DiskEmulator
 c:\users\alperst\documents\visual studio 2013\Projects\DiskEmulator\DiskEmulator\bin\Debug\DiskEmulator.pdb
 c:\users\alperst\documents\visual studio 2013\Projects\DiskEmulator\DiskEmulator\obj\Debug\DiskEmulator.exe
 c:\users\alperst\documents\visual studio 2013\Projects\DiskEmulator\DiskEmulator\obj\Debug\DiskEmulator.pdb
+C:\Users\Travis\Documents\Visual Studio 2013\Projects\DiskEmulator\DiskEmulator\bin\Debug\DiskEmulator.exe.config
+C:\Users\Travis\Documents\Visual Studio 2013\Projects\DiskEmulator\DiskEmulator\obj\Debug\DiskEmulator.exe
+C:\Users\Travis\Documents\Visual Studio 2013\Projects\DiskEmulator\DiskEmulator\obj\Debug\DiskEmulator.pdb
+C:\Users\Travis\Documents\Visual Studio 2013\Projects\DiskEmulator\DiskEmulator\bin\Debug\DiskEmulator.exe
+C:\Users\Travis\Documents\Visual Studio 2013\Projects\DiskEmulator\DiskEmulator\bin\Debug\DiskEmulator.pdb
+C:\Users\Travis\Documents\Visual Studio 2013\Projects\DiskEmulator\DiskEmulator\obj\Debug\DiskEmulator.csprojResolveAssemblyReference.cache
